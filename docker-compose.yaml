@@ -1,0 +1,45 @@
+version: "3"
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "8000:80"
+    depends_on:
+      - backend
+    networks:
+      - book-inventory-network
+
+  backend:
+    build: ./backend
+    ports:
+      - "3001:3000"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/bookdb
+    depends_on:
+      - mongodb
+    networks:
+      - book-inventory-network
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - book-inventory-network
+
+  database-init:
+    build: ./database
+    depends_on:
+      - mongodb
+    networks:
+      - book-inventory-network
+
+volumes:
+  mongo-data:
+
+networks:
+  book-inventory-network:
+    driver: bridge
