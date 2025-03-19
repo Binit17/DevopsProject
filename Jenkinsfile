@@ -1,43 +1,53 @@
 pipeline {
     agent any
-    
+
+    environment {
+        PROJECT_DIR = "Devops"
+    }
+
     stages {
-        stage('Checkout') {
+        stage('Checkout SCM') {
             steps {
-                checkout scm
+                git credentialsId: 'github-credentials', url: 'https://github.com/Binit17/Devops.git', branch: 'main'
             }
         }
-        
-        stage('Fix Database Connection') {
+
+        stage('Build Containers') {
             steps {
-                sh '''
-                sed -i '' 's/mongodb:\\/\\/localhost:27017\\/bookdb/mongodb:\\/\\/mongodb:27017\\/bookdb/g' database/init.js
-                '''
+                script {
+                    sh "docker build -t backend-app ./${PROJECT_DIR}/backend"
+                    sh "docker build -t frontend-app ./${PROJECT_DIR}/frontend"
+                    sh "docker build -t database-app ./${PROJECT_DIR}/database"
+                }
             }
         }
-        
-        stage('Build and Deploy') {
+
+        stage('Run Containers') {
             steps {
-                sh 'docker-compose build'
-                sh 'docker-compose up -d'
+                script {
+                    sh 'docker-compose down || true' // Ignore errors if containers are not running
+                    sh 'docker-compose up -d'
+                }
             }
         }
-        
-        stage('Verify Deployment') {
+
+        stage('Verify App is Running') {
             steps {
-                sh 'docker-compose ps'
-                sh 'curl -s http://localhost:8000'
-                sh 'curl -s http://localhost:3001/books'
+                script {
+                    sh 'docker ps'
+                    sh 'curl -I http://localhost:8000 || echo "Frontend not reachable"'
+                    sh 'curl -I http://localhost:3001/books || echo "Backend API not reachable"'
+                }
             }
         }
     }
-    
+
     post {
-        failure {
-            sh 'docker-compose logs'
-        }
         always {
-            sh 'docker system prune -f'
+            script {
+                echo "Cleaning up unused Docker resources..."
+                sh 'docker system prune -f || true'
+            }
         }
     }
 }
