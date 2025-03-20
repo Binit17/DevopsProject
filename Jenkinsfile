@@ -50,13 +50,4 @@ pipeline {
             }
         }
     }
-
-    post {
-        always {
-            script {
-                echo "Cleaning up unused Docker resources..."
-                sh 'docker system prune -f || true'
-            }
-        }
-    }
 }
