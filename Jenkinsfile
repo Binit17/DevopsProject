@@ -15,9 +15,9 @@ pipeline {
         stage('Build Containers') {
             steps {
                 script {
-                    sh "docker build -t backend-app ./${PROJECT_DIR}/backend"
-                    sh "docker build -t frontend-app ./${PROJECT_DIR}/frontend"
-                    sh "docker build -t database-app ./${PROJECT_DIR}/database"
+                    sh "docker build -t backend-app /backend"
+                    sh "docker build -t frontend-app /frontend"
+                    sh "docker build -t database-app /database"
                 }
             }
         }
