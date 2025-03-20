@@ -25,8 +25,16 @@ pipeline {
         stage('Run Containers') {
             steps {
                 script {
-                    sh 'docker-compose down || true' // Ignore errors if containers are not running
+                    sh 'docker-compose down || true'
                     sh 'docker-compose up -d'
+                }
+            }
+        }
+
+        stage('Run Ansible Playbook') {
+            steps {
+                script {
+                    sh 'ansible-playbook deploy.yml'
                 }
             }
         }
@@ -35,8 +43,8 @@ pipeline {
             steps {
                 script {
                     sh 'docker ps'
-                    sh 'curl -I http://localhost:8000 || echo "Frontend not reachable"'
-                    sh 'curl -I http://localhost:3001/books || echo "Backend API not reachable"'
+                    sh 'curl -I http://localhost:8001 || echo "Frontend not reachable"'
+                    sh 'curl -I http://localhost:3002/books || echo "Backend API not reachable"'
                 }
             }
         }
