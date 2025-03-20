@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout SCM') {
             steps {
-                git credentialsId: 'github-credentials', url: 'https://github.com/Binit17/Devops.git', branch: 'main'
+                git credentialsId: 'github-credentials', url: 'https://github.com/Binit17/DevopsProject.git', branch: 'main'
             }
         }
 
