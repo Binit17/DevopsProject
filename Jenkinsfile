@@ -35,8 +35,8 @@ pipeline {
             steps {
                 script {
                     sh 'docker ps'
-                    sh 'curl -I http://localhost:8002 || echo "Frontend not reachable"'
-                    sh 'curl -I http://localhost:3003/books || echo "Backend API not reachable"'
+                    sh 'curl -I http://frontend:8002 || echo "Frontend not reachable"'
+                    sh 'curl -I http://backend:3003/books || echo "Backend API not reachable"'
                 }
             }
         }
@@ -45,7 +45,7 @@ pipeline {
             steps {
                 script {
                     sh 'sleep 10'
-                    sh 'curl http://localhost:9091/metrics || echo "Prometheus not reachable"'
+                    sh 'curl http://prometheus:9091/metrics || echo "Prometheus not reachable"'
                 }
             }
         }
