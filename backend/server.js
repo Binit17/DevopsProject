@@ -33,4 +33,30 @@ app.delete("/books/:id", async (req, res) => {
   res.json({ message: "Book deleted" });
 });
 
+const client = require('prom-client');
+
+// Create a Registry to register the metrics
+const register = new client.Registry();
+
+// Default metrics collection (e.g., CPU, memory usage)
+client.collectDefaultMetrics({ register });
+
+// Custom metric example (e.g., number of books fetched)
+const booksFetchedCounter = new client.Counter({
+  name: 'books_fetched_total',
+  help: 'Total number of books fetched',
+});
+app.get('/books', async (req, res) => {
+  const books = await Book.find();
+  booksFetchedCounter.inc(); // Increment counter when endpoint is hit
+  res.json(books);
+});
+
+// Expose metrics endpoint for Prometheus scraping
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', register.contentType);
+  res.send(await register.metrics());
+});
+
+
 app.listen(3000, () => console.log("Server running on port 3000"));
