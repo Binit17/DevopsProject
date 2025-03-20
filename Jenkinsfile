@@ -36,7 +36,7 @@ pipeline {
                 script {
                     sh 'docker ps'
                     sh 'curl -I http://localhost:8002 || echo "Frontend not reachable"'
-                    sh 'curl -I http://localhost:3003/books || echo "Backend API not reachable"'
+                    sh 'curl -I http://localhost:3003 || echo "Backend API not reachable"'
                 }
             }
         }
