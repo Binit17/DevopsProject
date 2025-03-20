@@ -31,20 +31,21 @@ pipeline {
             }
         }
 
-        stage('Run Ansible Playbook') {
-            steps {
-                script {
-                    sh 'ansible-playbook deploy.yml'
-                }
-            }
-        }
-
         stage('Verify App is Running') {
             steps {
                 script {
                     sh 'docker ps'
                     sh 'curl -I http://localhost:8001 || echo "Frontend not reachable"'
                     sh 'curl -I http://localhost:3002/books || echo "Backend API not reachable"'
+                }
+            }
+        }
+
+        stage('Verify Prometheus') {
+            steps {
+                script {
+                    sh 'sleep 10'
+                    sh 'curl http://localhost:9090/metrics || echo "Prometheus not reachable"'
                 }
             }
         }
