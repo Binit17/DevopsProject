@@ -1,0 +1,21 @@
+---
+- name: Deploy Docker Containers
+  hosts: localhost
+  tasks:
+    - name: Start Docker Compose
+      shell: docker-compose up -d
+
+    - name: Check Running Containers
+      shell: docker ps
+
+    - name: Verify Frontend is Reachable
+      uri:
+        url: http://localhost:8001
+        method: GET
+        status_code: 200
+
+    - name: Verify Backend API is Reachable
+      uri:
+        url: http://localhost:3002/books
+        method: GET
+        status_code: 200
