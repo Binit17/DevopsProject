@@ -31,7 +31,7 @@ pipeline {
                 script {
                     // Stop and remove existing containers before starting new ones
                     sh 'docker-compose down'
-                    sh 'docker-compose up -d'
+                    sh 'docker-compose up -d --build'
                     // Add a short sleep to allow containers to start
                     sleep 10
                 }
