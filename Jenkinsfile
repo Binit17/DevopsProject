@@ -3,6 +3,9 @@ pipeline {
 
     environment {
         PROJECT_DIR = "Devops"
+        FRONTEND_PORT = "8003"
+        BACKEND_PORT = "3004"
+        PROMETHEUS_PORT = "9092"
     }
 
     stages {
@@ -12,12 +15,13 @@ pipeline {
             }
         }
 
-        stage('Build Containers') {
+        stage('Build Images') {
             steps {
                 script {
-                    sh "docker build -t backend-app ./backend"
-                    sh "docker build -t frontend-app ./frontend"
-                    sh "docker build -t database-app ./database"
+                    // Build images with tags that include a version or build number for better tracking
+                    sh "docker build -t binit17/backend-app:latest ./backend"
+                    sh "docker build -t binit17/frontend-app:latest ./frontend"
+                    sh "docker build -t binit17/database-app:latest ./database"
                 }
             }
         }
@@ -25,8 +29,11 @@ pipeline {
         stage('Run Containers') {
             steps {
                 script {
-                    sh 'docker-compose down || true'
+                    // Stop and remove existing containers before starting new ones
+                    sh 'docker-compose down'
                     sh 'docker-compose up -d'
+                    // Add a short sleep to allow containers to start
+                    sleep 10
                 }
             }
         }
@@ -34,9 +41,12 @@ pipeline {
         stage('Verify App is Running') {
             steps {
                 script {
+                    // Check container status
                     sh 'docker ps'
-                    sh 'curl -I http://localhost:8002 || echo "Frontend not reachable"'
-                    sh 'curl -I http://localhost:3003 || echo "Backend API not reachable"'
+
+                    // Use curl with --fail to catch HTTP errors
+                    sh "curl --fail http://localhost:${FRONTEND_PORT} || echo 'Frontend not reachable'"
+                    sh "curl --fail http://localhost:${BACKEND_PORT} || echo 'Backend API not reachable'"
                 }
             }
         }
@@ -44,8 +54,9 @@ pipeline {
         stage('Verify Prometheus') {
             steps {
                 script {
-                    sh 'sleep 10'
-                    sh 'curl http://localhost:9091/metrics || echo "Prometheus not reachable"'
+                    // Wait longer for Prometheus to start
+                    sleep 20
+                    sh "curl --fail http://localhost:${PROMETHEUS_PORT}/metrics || echo 'Prometheus not reachable'"
                 }
             }
         }
